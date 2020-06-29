@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sailor/sailor.dart';
-import 'package:todo_list_app/core/pages/settings_screen.dart';
+import 'package:todo_list_app/core/pages/loading_screen.dart';
+import 'package:todo_list_app/injection_container.dart';
 
-import 'core/theme/app_theme.dart';
+import 'core/pages/settings_screen.dart';
 import 'core/theme/bloc/theme_bloc.dart';
+import 'features/authentication/presentation/bloc/auth_bloc.dart';
+import 'features/authentication/presentation/pages/login_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await init();
   Routes.createRoutes();
   runApp(MyApp());
 }
@@ -14,13 +19,44 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ThemeBloc>(
-      create: (_) => ThemeBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ThemeBloc>(
+          create: (_) => ThemeBloc(),
+        ),
+        BlocProvider<AuthBloc>(
+          create: (_) {
+            final bloc = servLocator<AuthBloc>();
+
+            bloc.add(CheckLoggedInStateEvent());
+            return bloc;
+          },
+        )
+      ],
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (ctx, state) => MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: state.themeData,
-          home: MyHomePage(title: 'ToDo List'),
+          home: BlocListener<AuthBloc, AuthState>(
+            listener: (_, state) {
+              if (state is ErrorState) {
+                print(state.message);
+              }
+            },
+            child: BlocBuilder<AuthBloc, AuthState>(
+              builder: (ctx, state) {
+                if (state is LoadingState) {
+                  return LoadingPage();
+                } else if (state is LoggedInState) {
+                  return MyHomePage(
+                      title: '${state.userData.name.split(' ')[0]}\'s ToDos');
+                } else if (state is LoggedOutState) {
+                  return LoginScreen();
+                }
+                return LoginScreen();
+              },
+            ),
+          ),
           onGenerateRoute: Routes.sailor.generator(),
           navigatorKey: Routes.sailor.navigatorKey,
         ),
@@ -54,10 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: Center(
-        child: Text('Test Text'),
+        child: Text(widget.title),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          BlocProvider.of<AuthBloc>(context).add(LogOutEvent());
+        },
         child: Icon(Icons.add),
         backgroundColor: Theme.of(context).accentColor,
       ),
@@ -71,6 +109,10 @@ class Routes {
   static void createRoutes() {
     sailor.addRoutes(
       [
+        SailorRoute(
+          name: LoginScreen.routeName,
+          builder: (_, args, params) => LoginScreen(),
+        ),
         SailorRoute(
           name: SettingsScreen.routeName,
           builder: (_, args, params) => SettingsScreen(),
