@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sailor/sailor.dart';
@@ -38,13 +39,14 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: state.themeData,
           home: BlocListener<AuthBloc, AuthState>(
-            listener: (_, state) {
+            listener: (ctx, state) {
               if (state is ErrorState) {
                 print(state.message);
+                _displaySnackbar(state.message, ctx);
               }
             },
             child: BlocBuilder<AuthBloc, AuthState>(
-              builder: (ctx, state) {
+              builder: (_, state) {
                 if (state is LoadingState) {
                   return LoadingPage();
                 } else if (state is LoggedInState) {
@@ -62,6 +64,13 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _displaySnackbar(String message, context) {
+    Flushbar(
+      message: message,
+      duration: Duration(seconds: 2),
+    ).show(context);
   }
 }
 
@@ -93,9 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text(widget.title),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          BlocProvider.of<AuthBloc>(context).add(LogOutEvent());
-        },
+        onPressed: () {},
         child: Icon(Icons.add),
         backgroundColor: Theme.of(context).accentColor,
       ),

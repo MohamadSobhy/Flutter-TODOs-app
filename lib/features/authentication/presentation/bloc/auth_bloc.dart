@@ -43,6 +43,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         (failure) => ErrorState(message: failure.message),
         (user) => LoggedInState(userData: user),
       );
+    } else if (event is LoginWithFacebookEvent) {
+      yield LoadingState();
+
+      final loginWithFacebookEither = await loginWithFacebook(NoParam());
+
+      yield loginWithFacebookEither.fold(
+        (failure) => ErrorState(message: failure.message),
+        (user) => LoggedInState(userData: user),
+      );
     } else if (event is LogOutEvent) {
       yield LoadingState();
 

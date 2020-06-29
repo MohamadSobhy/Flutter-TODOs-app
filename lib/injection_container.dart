@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,6 +59,7 @@ Future<void> init() async {
     () => AuthRemoteDataSourceImpl(
       firebaseAuth: servLocator(),
       googleSignIn: servLocator(),
+      facebookLogin: servLocator(),
     ),
   );
 
@@ -68,6 +70,7 @@ Future<void> init() async {
   //! External Libs
   servLocator.registerLazySingleton(() => FirebaseAuth.instance);
   servLocator.registerLazySingleton(() => GoogleSignIn());
+  servLocator.registerLazySingleton(() => FacebookLogin());
 
   final preferences = await SharedPreferences.getInstance();
   servLocator.registerLazySingleton(() => preferences);

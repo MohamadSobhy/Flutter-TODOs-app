@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 //import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
@@ -31,18 +32,19 @@ abstract class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FirebaseAuth firebaseAuth;
   final GoogleSignIn googleSignIn;
-  //final FacebookLogin facebookLogin;
+  final FacebookLogin facebookLogin;
 
   AuthRemoteDataSourceImpl({
     @required this.firebaseAuth,
     @required this.googleSignIn,
-    //@required this.facebookLogin,
+    @required this.facebookLogin,
   });
 
   @override
   Future<void> logOut() async {
     try {
       await googleSignIn.signOut();
+      await facebookLogin.logOut();
       await firebaseAuth.signOut();
     } catch (err) {
       throw ServerException(message: err.toString());
@@ -50,9 +52,32 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> loginWithFacebook() {
-    // TODO: implement loginWithFacebook
-    throw UnimplementedError();
+  Future<UserModel> loginWithFacebook() async {
+    try {
+      final loginResult = await facebookLogin.logIn(['email']);
+
+      switch (loginResult.status) {
+        case FacebookLoginStatus.loggedIn:
+          {
+            final authCredential = FacebookAuthProvider.getCredential(
+              accessToken: loginResult.accessToken.token,
+            );
+            final authResult =
+                await firebaseAuth.signInWithCredential(authCredential);
+            return _extractUserData(authResult);
+          }
+        case FacebookLoginStatus.cancelledByUser:
+          throw ServerException(message: 'Login Canceled');
+        case FacebookLoginStatus.error:
+          throw ServerException(message: 'Login Failed. try again later.');
+      }
+    } on PlatformException catch (err) {
+      throw ServerException(message: err.message);
+    } on ServerException catch (err) {
+      throw ServerException(message: err.message);
+    } catch (error) {
+      throw ServerException(message: error.toString());
+    }
   }
 
   @override
@@ -68,18 +93,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final authResult =
           await firebaseAuth.signInWithCredential(authCredential);
 
-      final userData = UserModel(
-        id: authResult.user.uid,
-        name: authResult.user.displayName,
-        email: authResult.user.email,
-        imageUrl: authResult.user.photoUrl,
-      );
-
-      return userData;
+      return _extractUserData(authResult);
     } on PlatformException catch (err) {
       throw ServerException(message: err.message);
     } catch (error) {
       throw ServerException(message: error.toString());
     }
+  }
+
+  UserModel _extractUserData(AuthResult authResult) {
+    final userData = UserModel(
+      id: authResult.user.uid,
+      name: authResult.user.displayName,
+      email: authResult.user.email,
+      imageUrl: authResult.user.photoUrl,
+    );
+
+    return userData;
   }
 }
