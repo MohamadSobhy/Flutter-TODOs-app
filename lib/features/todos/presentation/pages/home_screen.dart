@@ -81,6 +81,7 @@ class _MyHomePageState extends State<MyHomePage> with AlertsMixin {
         }
 
         return ListView.builder(
+          padding: const EdgeInsets.only(top: 3.0),
           itemCount: snapshot.data.length,
           itemBuilder: (ctx, index) {
             return TodoItem(
@@ -110,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> with AlertsMixin {
 
   AppBar _buildAppBar() {
     return AppBar(
+      elevation: 0.0,
       title: Text(widget.title),
       actions: [
         IconButton(

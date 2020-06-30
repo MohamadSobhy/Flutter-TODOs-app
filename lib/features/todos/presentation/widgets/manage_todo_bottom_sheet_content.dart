@@ -38,6 +38,7 @@ class _ManageTodoBottomSheetContentState
     return Form(
       key: _formKey,
       child: SingleChildScrollView(
+        reverse: true,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(

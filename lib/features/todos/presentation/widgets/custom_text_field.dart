@@ -21,18 +21,21 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: Colors.grey[400],
+            color: Colors.grey[200],
           ),
         ),
         enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: Colors.grey[400],
+            color: Colors.grey[200],
           ),
         ),
         border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: Colors.grey[400],
+            color: Colors.grey[200],
           ),
         ),
         filled: true,

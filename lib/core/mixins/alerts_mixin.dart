@@ -32,6 +32,7 @@ mixin AlertsMixin {
   Future<bool> showConfirmationDialog(context, {@required String title}) {
     return showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) {
         return CustomConfirmationDialog(
           title: title,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/mixins/alerts_mixin.dart';
@@ -21,7 +22,7 @@ class TodoItem extends StatelessWidget with AlertsMixin {
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 8.0,
-        vertical: 5,
+        vertical: 4,
       ),
       child: Dismissible(
         key: ValueKey(todo.id),
@@ -42,8 +43,25 @@ class TodoItem extends StatelessWidget with AlertsMixin {
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: ListTile(
-            title: Text(todo.title),
-            subtitle: Text(todo.body),
+            title: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(todo.title),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    todo.body,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 5.0),
+                  Text(DateFormat.yMMMd().format(todo.date)),
+                ],
+              ),
+            ),
             trailing: Icon(
               Icons.check_circle_outline,
               color: todo.isDone ? Colors.blue : Colors.grey,
