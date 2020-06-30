@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:get_it/get_it.dart';
@@ -12,12 +13,21 @@ import 'package:todo_list_app/features/authentication/domain/usecases/log_out.da
 import 'package:todo_list_app/features/authentication/domain/usecases/login_with_facebook.dart';
 import 'package:todo_list_app/features/authentication/domain/usecases/login_with_google.dart';
 import 'package:todo_list_app/features/authentication/presentation/bloc/auth_bloc.dart';
+import 'package:todo_list_app/features/todos/data/datasources/todo_remote_datasource.dart';
+import 'package:todo_list_app/features/todos/data/repositories/todo_repository_impl.dart';
+import 'package:todo_list_app/features/todos/domain/repositories/todo_repository.dart';
+import 'package:todo_list_app/features/todos/domain/usecases/add_new_todo.dart';
+import 'package:todo_list_app/features/todos/domain/usecases/delete_todo.dart';
+import 'package:todo_list_app/features/todos/domain/usecases/get_todos_stream.dart';
+import 'package:todo_list_app/features/todos/domain/usecases/update_todo.dart';
+import 'package:todo_list_app/features/todos/presentation/provider/todos_provider.dart';
 
 import 'features/authentication/data/datasources/auth_local_datasource.dart';
 
 final servLocator = GetIt.instance;
 
 Future<void> init() async {
+  //! Authentication Feature
   //! Bloc
   servLocator.registerFactory(
     () => AuthBloc(
@@ -74,4 +84,59 @@ Future<void> init() async {
 
   final preferences = await SharedPreferences.getInstance();
   servLocator.registerLazySingleton(() => preferences);
+
+  //! Todos Feature
+
+  //! Provider
+  servLocator.registerLazySingleton(
+    () => TodoProvider(
+      getTodoStream: servLocator(),
+      addNewToDo: servLocator(),
+      updateToDo: servLocator(),
+      deleteToDo: servLocator(),
+    ),
+  );
+
+  //! UseCases
+  servLocator.registerLazySingleton(
+    () => GetTodoStream(
+      repository: servLocator(),
+    ),
+  );
+
+  servLocator.registerLazySingleton(
+    () => AddNewToDo(
+      repository: servLocator(),
+    ),
+  );
+
+  servLocator.registerLazySingleton(
+    () => UpdateToDo(
+      repository: servLocator(),
+    ),
+  );
+
+  servLocator.registerLazySingleton(
+    () => DeleteToDo(
+      repository: servLocator(),
+    ),
+  );
+
+  //! Todo Repository
+  servLocator.registerLazySingleton<TodoRepository>(
+    () => TodoRepositoryImpl(
+      networkInfo: servLocator(),
+      remoteDataSource: servLocator(),
+    ),
+  );
+
+  //! Data Sources
+  servLocator.registerLazySingleton<TodoRemoteDataSource>(
+    () => TodoRemoteDataSourceImpl(
+      firestore: servLocator(),
+    ),
+  );
+
+  //! Exteranl Libs
+  servLocator.registerLazySingleton(() => Firestore.instance);
 }
