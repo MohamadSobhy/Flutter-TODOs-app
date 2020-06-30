@@ -84,6 +84,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> loginWithGoogle() async {
     try {
       final googleAccount = await googleSignIn.signIn();
+      if (googleAccount == null) {
+        throw ServerException(message: 'Login Canceled');
+      }
       final googleAuth = await googleAccount.authentication;
 
       final authCredential = GoogleAuthProvider.getCredential(
