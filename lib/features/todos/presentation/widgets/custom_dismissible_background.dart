@@ -17,7 +17,10 @@ class CustomDismissibleBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-      color: color,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       padding: EdgeInsets.only(
         right: rightPadding ?? double.infinity,
         left: leftPadding ?? 0,

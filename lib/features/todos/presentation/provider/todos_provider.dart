@@ -1,4 +1,6 @@
+import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
+import 'package:todo_list_app/core/errors/failures.dart';
 import 'package:todo_list_app/core/usecase/usecase.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/add_new_todo.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/delete_todo.dart';
@@ -20,19 +22,19 @@ class TodoProvider {
     @required this.deleteToDo,
   });
 
-  Future<Stream<List<Todo>>> getTodosStream() async {
+  Future<Either<Failure, Stream<List<Todo>>>> getTodosStream() async {
     final todoStreamEither = await getTodoStream(NoParam());
-
-    return todoStreamEither.fold(
-      (failure) {
-        print('failed');
-        return Stream.empty();
-      },
-      (todosStream) {
-        print(todosStream);
-        return todosStream;
-      },
-    );
+    return todoStreamEither;
+    // return todoStreamEither.fold(
+    //   (failure) {
+    //     print('failed');//Todo
+    //     return Stream.empty();
+    //   },
+    //   (todosStream) {
+    //     print(todosStream);
+    //     return todosStream;
+    //   },
+    // );
   }
 
   Future<String> addNewTodo(Todo todo) async {

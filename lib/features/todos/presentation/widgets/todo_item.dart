@@ -18,32 +18,42 @@ class TodoItem extends StatelessWidget with AlertsMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Dismissible(
-      key: ValueKey(todo.id),
-      background: CustomDismissibleBackground(
-        color: Colors.blue,
-        icon: Icons.check_circle,
-        leftPadding: 15.0,
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8.0,
+        vertical: 5,
       ),
-      confirmDismiss: (dir) => _confirmTodoDismiss(dir, context),
-      secondaryBackground: CustomDismissibleBackground(
-        color: Colors.red,
-        icon: Icons.delete,
-        rightPadding: 15.0,
-      ),
-      child: Card(
-        child: ListTile(
-          title: Text(todo.title),
-          subtitle: Text(todo.body),
-          trailing: Icon(
-            Icons.check_circle_outline,
-            color: todo.isDone ? Colors.blue : Colors.grey,
-            size: 25,
+      child: Dismissible(
+        key: ValueKey(todo.id),
+        background: CustomDismissibleBackground(
+          color: Colors.blue,
+          icon: Icons.check_circle,
+          leftPadding: 15.0,
+        ),
+        confirmDismiss: (dir) => _confirmTodoDismiss(dir, context),
+        secondaryBackground: CustomDismissibleBackground(
+          color: Colors.red,
+          icon: Icons.delete,
+          rightPadding: 15.0,
+        ),
+        child: Card(
+          margin: const EdgeInsets.all(0.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          onTap: () => showManageTodoBottomSheet(
-            context,
-            (todo) => _updateTodoCallback(context, todo),
-            oldTodo: todo,
+          child: ListTile(
+            title: Text(todo.title),
+            subtitle: Text(todo.body),
+            trailing: Icon(
+              Icons.check_circle_outline,
+              color: todo.isDone ? Colors.blue : Colors.grey,
+              size: 25,
+            ),
+            onTap: () => showManageTodoBottomSheet(
+              context,
+              (todo) => _updateTodoCallback(context, todo),
+              oldTodo: todo,
+            ),
           ),
         ),
       ),
