@@ -99,6 +99,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return _extractUserData(authResult);
     } on PlatformException catch (err) {
       throw ServerException(message: err.message);
+    } on ServerException catch (err) {
+      throw ServerException(message: err.message);
     } catch (error) {
       throw ServerException(message: error.toString());
     }

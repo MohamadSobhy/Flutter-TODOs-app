@@ -16,10 +16,6 @@ abstract class TodoRemoteDataSource {
   Future<String> deleteTodo(TodoModel todo);
 }
 
-final String collectionName =
-    json.decode(servLocator<SharedPreferences>().getString('user'))['email'] +
-        '-todos';
-
 class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   final Firestore firestore;
 
@@ -29,7 +25,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   Future<String> addNewTodo(TodoModel todo) async {
     try {
       final documentRef =
-          firestore.collection(collectionName).document(todo.id);
+          firestore.collection(_getCollectionName()).document(todo.id);
 
       await firestore.runTransaction((transaction) async {
         final docSnap = await transaction.get(documentRef);
@@ -45,7 +41,10 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<String> deleteTodo(TodoModel todo) async {
     try {
-      await firestore.collection(collectionName).document(todo.id).delete();
+      await firestore
+          .collection(_getCollectionName())
+          .document(todo.id)
+          .delete();
       return 'Done. TODO deleted successfully.';
     } catch (err) {
       throw ServerException(message: err.toString());
@@ -55,7 +54,8 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<String> updateTodo(TodoModel todo) async {
     try {
-      final docRef = firestore.collection(collectionName).document(todo.id);
+      final docRef =
+          firestore.collection(_getCollectionName()).document(todo.id);
 
       firestore.runTransaction((transaction) async {
         final docSnap = await transaction.get(docRef);
@@ -70,7 +70,8 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<Stream<List<TodoModel>>> getTodosStream() async {
     try {
-      final snapshotsStream = firestore.collection(collectionName).snapshots();
+      final snapshotsStream =
+          firestore.collection(_getCollectionName()).snapshots();
 
       return snapshotsStream.transform(streamTransformer);
     } catch (error) {
@@ -86,4 +87,9 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
       sink.add(todos);
     },
   );
+
+  String _getCollectionName() {
+    final preferences = servLocator<SharedPreferences>();
+    return json.decode(preferences.getString('user'))['email'] + '-todos';
+  }
 }
