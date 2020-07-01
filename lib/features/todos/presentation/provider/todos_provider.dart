@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import 'package:todo_list_app/core/errors/failures.dart';
 import 'package:todo_list_app/core/usecase/usecase.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/add_new_todo.dart';
+import 'package:todo_list_app/features/todos/domain/usecases/clear_cashed_todos.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/delete_todo.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/update_todo.dart';
 
@@ -14,12 +15,14 @@ class TodoProvider {
   final AddNewToDo addNewToDo;
   final UpdateToDo updateToDo;
   final DeleteToDo deleteToDo;
+  final ClearCashedTodos clearCashedTodos;
 
   TodoProvider({
     @required this.getTodoStream,
     @required this.addNewToDo,
     @required this.updateToDo,
     @required this.deleteToDo,
+    @required this.clearCashedTodos,
   });
 
   Future<Either<Failure, Stream<List<Todo>>>> getTodosStream() async {
@@ -35,6 +38,10 @@ class TodoProvider {
     //     return todosStream;
     //   },
     // );
+  }
+
+  Future<void> clearCashe() async {
+    clearCashedTodos(NoParam());
   }
 
   Future<String> addNewTodo(Todo todo) async {

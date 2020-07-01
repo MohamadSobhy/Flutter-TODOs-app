@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:sailor/sailor.dart';
+import 'package:todo_list_app/core/mixins/alerts_mixin.dart';
 import 'package:todo_list_app/core/theme/app_theme.dart';
 import 'package:todo_list_app/core/theme/bloc/theme_bloc.dart';
 import 'package:todo_list_app/features/authentication/presentation/bloc/auth_bloc.dart';
 import 'package:todo_list_app/features/authentication/presentation/pages/login_screen.dart';
+import 'package:todo_list_app/features/todos/presentation/provider/todos_provider.dart';
 
 import '../../main.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatelessWidget with AlertsMixin {
   static const String routeName = '/settings';
 
   @override
@@ -35,13 +38,7 @@ class SettingsScreen extends StatelessWidget {
           Align(
             alignment: Alignment.center,
             child: FlatButton(
-              onPressed: () {
-                BlocProvider.of<AuthBloc>(context).add(LogOutEvent());
-                Navigator.popUntil(
-                  context,
-                  (route) => route.isFirst,
-                );
-              },
+              onPressed: () => _logoutCallback(context),
               child: Text(
                 'LOG OUT',
                 style: Theme.of(context)
@@ -111,6 +108,28 @@ class SettingsScreen extends StatelessWidget {
           bloc.add(ChangeAppThemeEvent(appTheme: AppTheme.greenLight));
           break;
         }
+    }
+  }
+
+  void _logoutCallback(context) async {
+    final isConfirmed = await showConfirmationDialog(
+      context,
+      title: 'Do you want to Logout?',
+    );
+    if (isConfirmed) {
+      final bloc = BlocProvider.of<AuthBloc>(context);
+      bloc.add(LogOutEvent());
+
+      bloc.listen((state) {
+        if (state is LoggedOutState) {
+          Provider.of<TodoProvider>(context, listen: false).clearCashe();
+
+          Navigator.popUntil(
+            context,
+            (route) => route.isFirst,
+          );
+        }
+      });
     }
   }
 }

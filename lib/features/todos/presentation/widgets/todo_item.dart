@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:provider/provider.dart';
 
 import '../../../../core/mixins/alerts_mixin.dart';
@@ -30,7 +30,7 @@ class TodoItem extends StatelessWidget with AlertsMixin {
           color: Colors.blue,
           icon: Icons.check_circle,
           leftPadding: 15.0,
-        ),
+        ), //TODO: Add Dismiss offset.
         confirmDismiss: (dir) => _confirmTodoDismiss(dir, context),
         secondaryBackground: CustomDismissibleBackground(
           color: Colors.red,
@@ -55,10 +55,15 @@ class TodoItem extends StatelessWidget with AlertsMixin {
                   Text(
                     todo.body,
                     maxLines: 4,
+                    textAlign:
+                        _isArabic(todo.body) ? TextAlign.right : TextAlign.left,
+                    textDirection: _isArabic(todo.body)
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 5.0),
-                  Text(DateFormat.yMMMd().format(todo.date)),
+                  Text(intl.DateFormat.yMMMd().format(todo.date)),
                 ],
               ),
             ),
@@ -84,14 +89,9 @@ class TodoItem extends StatelessWidget with AlertsMixin {
           await showConfirmationDialog(context, title: 'Delete this TODO?');
       if (isConfirmed) {
         _deleteTodoCallback(context, todo).then((resMsg) {
-          //check if the todo deleted before dismissing
-          if (resMsg.startsWith('Done')) {
-            displaySnackbar(resMsg, mainPageContext);
-          }
+          displaySnackbar(resMsg, mainPageContext);
         });
       }
-      //cancel dismiss if an error occured
-      //return Future.value(false);
     } else {
       final isConfirmed = await showConfirmationDialog(
         context,
@@ -119,5 +119,11 @@ class TodoItem extends StatelessWidget with AlertsMixin {
     );
     //displaySnackbar(msg, context);
     return msg;
+  }
+
+  bool _isArabic(String text) {
+    final arabicRegex = RegExp(r'[ء-ي-_ \.]*$');
+    final englishRegex = RegExp(r'[a-zA-Z ]');
+    return text.contains(arabicRegex) && !text.startsWith(englishRegex);
   }
 }

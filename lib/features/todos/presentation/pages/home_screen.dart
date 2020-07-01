@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> with AlertsMixin {
           height: MediaQuery.of(context).size.height -
               appBar.preferredSize.height -
               MediaQuery.of(context).padding.top,
-          child: Text(message),
+          child: Text(message, textAlign: TextAlign.center),
           alignment: Alignment.center,
         ),
       ],

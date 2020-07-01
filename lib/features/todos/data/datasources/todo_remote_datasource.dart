@@ -70,8 +70,10 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<Stream<List<TodoModel>>> getTodosStream() async {
     try {
-      final snapshotsStream =
-          firestore.collection(_getCollectionName()).snapshots();
+      final snapshotsStream = firestore
+          .collection(_getCollectionName())
+          .orderBy('date')
+          .snapshots();
 
       return snapshotsStream.transform(streamTransformer);
     } catch (error) {

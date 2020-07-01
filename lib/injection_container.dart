@@ -13,16 +13,19 @@ import 'package:todo_list_app/features/authentication/domain/usecases/log_out.da
 import 'package:todo_list_app/features/authentication/domain/usecases/login_with_facebook.dart';
 import 'package:todo_list_app/features/authentication/domain/usecases/login_with_google.dart';
 import 'package:todo_list_app/features/authentication/presentation/bloc/auth_bloc.dart';
+import 'package:todo_list_app/features/todos/data/datasources/todo_local_data_source.dart';
 import 'package:todo_list_app/features/todos/data/datasources/todo_remote_datasource.dart';
 import 'package:todo_list_app/features/todos/data/repositories/todo_repository_impl.dart';
 import 'package:todo_list_app/features/todos/domain/repositories/todo_repository.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/add_new_todo.dart';
+import 'package:todo_list_app/features/todos/domain/usecases/clear_cashed_todos.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/delete_todo.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/get_todos_stream.dart';
 import 'package:todo_list_app/features/todos/domain/usecases/update_todo.dart';
 import 'package:todo_list_app/features/todos/presentation/provider/todos_provider.dart';
 
 import 'features/authentication/data/datasources/auth_local_datasource.dart';
+import 'features/todos/data/datasources/database_helper.dart';
 
 final servLocator = GetIt.instance;
 
@@ -94,6 +97,7 @@ Future<void> init() async {
       addNewToDo: servLocator(),
       updateToDo: servLocator(),
       deleteToDo: servLocator(),
+      clearCashedTodos: servLocator(),
     ),
   );
 
@@ -121,12 +125,18 @@ Future<void> init() async {
       repository: servLocator(),
     ),
   );
+  servLocator.registerLazySingleton(
+    () => ClearCashedTodos(
+      repository: servLocator(),
+    ),
+  );
 
   //! Todo Repository
   servLocator.registerLazySingleton<TodoRepository>(
     () => TodoRepositoryImpl(
       networkInfo: servLocator(),
       remoteDataSource: servLocator(),
+      localDataSource: servLocator(),
     ),
   );
 
@@ -136,6 +146,12 @@ Future<void> init() async {
       firestore: servLocator(),
     ),
   );
+
+  //creats the TODOs database for cashing fetched TODOs.
+  await DatabaseHelper().createDatabase();
+
+  servLocator.registerLazySingleton<TodoLocalDataSource>(
+      () => TodoLocalDataSourceImpl());
 
   //! Exteranl Libs
   servLocator.registerLazySingleton(() => Firestore.instance);

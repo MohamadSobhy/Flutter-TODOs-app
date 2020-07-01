@@ -7,4 +7,5 @@ abstract class TodoRepository {
   Future<Either<Failure, String>> addNewTodo(Todo todo);
   Future<Either<Failure, String>> updateTodo(Todo todo);
   Future<Either<Failure, String>> deleteTodo(Todo todo);
+  Future<Either<Failure, void>> clearCashedTodos();
 }
