@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:sailor/sailor.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_list_app/features/todos/data/datasources/database_helper.dart';
 
 import 'core/mixins/alerts_mixin.dart';
@@ -62,6 +65,17 @@ class MyApp extends StatelessWidget with AlertsMixin {
                       );
                     } else if (state is LoggedOutState) {
                       return LoginScreen();
+                    } else if (state is ErrorState) {
+                      final userData =
+                          servLocator<SharedPreferences>().get('user');
+                      if (userData == null) {
+                        return LoginScreen();
+                      } else {
+                        return MyHomePage(
+                          title:
+                              '${json.decode(userData)['displayName'].split(' ')[0]}\'s TODOs',
+                        );
+                      }
                     }
                     return LoginScreen();
                   },
