@@ -1,16 +1,28 @@
-# todo_list_app
+# Flutter TODOs list app
 
-A new Flutter project.
+---
 
-## Getting Started
+### A TODO list app to store all your TODOs and notes built using Flutter.
 
-This project is a starting point for a Flutter application.
+**Features:**
+- Multiple App Theme.
+- Manage (Add, Update, Delete) TODO.
+- Simple UI.
+- Login with Google Account.
+- Login with Facebook Account.
+- Awesome Alerts.
+- Good UI-UX.
 
-A few resources to get you started if this is your first Flutter project:
+**Techs**
+- Flutter Bloc
+- Provider
+- Firestore
+- Clean Architecture 
+- Firebase Authentication.
+- Shared Preferences
+- Functional Programming
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+[![Demo CountPages alpha](https://j.gifs.com/ANzV9z.gif)](https://youtu.be/rrM5x2YJDac)
+
+
