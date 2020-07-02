@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">TODOs App</string>
+  <string name="app_name">TODOs</string>
 
   <!-- Replace "000000000000" with your Facebook App ID here. -->
   <string name="facebook_app_id">899847220487763</string>

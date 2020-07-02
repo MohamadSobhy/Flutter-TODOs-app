@@ -27,7 +27,7 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
       final documentRef =
           firestore.collection(_getCollectionName()).document(todo.id);
 
-      await firestore.runTransaction((transaction) async {
+      firestore.runTransaction((transaction) async {
         final docSnap = await transaction.get(documentRef);
         await transaction.set(docSnap.reference, todo.toMap());
       });
@@ -41,10 +41,14 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<String> deleteTodo(TodoModel todo) async {
     try {
-      await firestore
-          .collection(_getCollectionName())
-          .document(todo.id)
-          .delete();
+      final docRef =
+          firestore.collection(_getCollectionName()).document(todo.id);
+
+      firestore.runTransaction((transaction) async {
+        final docSnap = await transaction.get(docRef);
+        await transaction.delete(docSnap.reference);
+      });
+
       return 'Done. TODO deleted successfully.';
     } catch (err) {
       throw ServerException(message: err.toString());
