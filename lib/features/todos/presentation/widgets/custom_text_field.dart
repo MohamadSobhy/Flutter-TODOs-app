@@ -59,8 +59,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   void _checkForArabicLetter(String text) {
-    final arabicRegex = RegExp(r'[ء-ي-_ \.]*$');
-    final englishRegex = RegExp(r'[a-zA-Z ]');
+    final arabicRegex = RegExp(r'[ء-ي-_ \.٠-٩]*$');
+    final englishRegex = RegExp(r'[0-9a-zA-Z ]');
     if (text.isNotEmpty &&
         text.contains(arabicRegex) &&
         !text.startsWith(englishRegex)) {

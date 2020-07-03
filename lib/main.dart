@@ -24,6 +24,8 @@ void main() async {
   runApp(MyApp());
 }
 
+final myHomePage = MyHomePage();
+
 class MyApp extends StatelessWidget with AlertsMixin {
   @override
   Widget build(BuildContext context) {
@@ -57,24 +59,23 @@ class MyApp extends StatelessWidget with AlertsMixin {
                 },
                 child: BlocBuilder<AuthBloc, AuthState>(
                   builder: (_, state) {
+                    final userData =
+                        servLocator<SharedPreferences>().get('user');
                     if (state is LoadingState) {
-                      return LoadingPage();
+                      if (userData == null) {
+                        return LoadingPage();
+                      } else {
+                        return myHomePage;
+                      }
                     } else if (state is LoggedInState) {
-                      return MyHomePage(
-                        title: '${state.userData.name.split(' ')[0]}\'s TODOs',
-                      );
+                      return myHomePage;
                     } else if (state is LoggedOutState) {
                       return LoginScreen();
                     } else if (state is ErrorState) {
-                      final userData =
-                          servLocator<SharedPreferences>().get('user');
                       if (userData == null) {
                         return LoginScreen();
                       } else {
-                        return MyHomePage(
-                          title:
-                              '${json.decode(userData)['displayName'].split(' ')[0]}\'s TODOs',
-                        );
+                        return myHomePage;
                       }
                     }
                     return LoginScreen();

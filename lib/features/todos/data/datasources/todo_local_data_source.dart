@@ -17,7 +17,11 @@ class TodoLocalDataSourceImpl implements TodoLocalDataSource {
   @override
   Future<List<TodoModel>> getCachedTodos() async {
     try {
-      List<Map> todosResult = await db.query(DatabaseHelper.TODOS_TABLE_NAME);
+      List<Map> todosResult = await db.query(
+        DatabaseHelper.TODOS_TABLE_NAME,
+        orderBy: DatabaseHelper.DATE_COLUMN,
+      );
+
       List<TodoModel> todos = [];
 
       print('kmkmk');
@@ -35,7 +39,7 @@ class TodoLocalDataSourceImpl implements TodoLocalDataSource {
         todos.add(TodoModel.fromJson(temp));
       }
 
-      print('Cashed TODOS: $todos');
+      //print('Cashed TODOS: $todos');
 
       return todos;
     } catch (error) {
@@ -46,7 +50,7 @@ class TodoLocalDataSourceImpl implements TodoLocalDataSource {
   @override
   Future<void> cacheListOfTodos(List<TodoModel> todos) async {
     try {
-      await clearCachedTodos();
+      // await clearCachedTodos();
       final todosJson = todos.map((e) => e.toMap()).toList();
       for (Map todoMap in todosJson) {
         todoMap['isDone'] = todoMap['isDone'] ? 1 : 0;
@@ -56,6 +60,8 @@ class TodoLocalDataSourceImpl implements TodoLocalDataSource {
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
       }
+
+      print('TODOs cashed');
     } catch (error) {
       throw CasheException(message: error.toString());
     }

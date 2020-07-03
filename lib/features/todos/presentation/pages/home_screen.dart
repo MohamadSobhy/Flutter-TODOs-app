@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_list_app/core/errors/failures.dart';
+import 'package:todo_list_app/injection_container.dart';
 
 import '../../../../core/mixins/alerts_mixin.dart';
 import '../../../../core/pages/settings_screen.dart';
@@ -11,15 +15,21 @@ import '../provider/todos_provider.dart';
 import '../widgets/todo_item.dart';
 
 class MyHomePage extends StatefulWidget {
-  final String title;
-
-  const MyHomePage({Key key, this.title}) : super(key: key);
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> with AlertsMixin {
+  String appBarTitle;
+
+  @override
+  void initState() {
+    final userData = servLocator<SharedPreferences>().getString('user');
+    appBarTitle =
+        '${json.decode(userData)['displayName'].split(' ')[0]}\'s TODOs';
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppBar appBar = _buildAppBar();
@@ -112,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> with AlertsMixin {
   AppBar _buildAppBar() {
     return AppBar(
       elevation: 0.0,
-      title: Text(widget.title),
+      title: Text(appBarTitle),
       actions: [
         IconButton(
           icon: Icon(Icons.settings),

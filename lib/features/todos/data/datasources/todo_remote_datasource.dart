@@ -11,6 +11,7 @@ import '../models/todo_model.dart';
 
 abstract class TodoRemoteDataSource {
   Future<Stream<List<TodoModel>>> getTodosStream();
+  Future<void> syncLocalTodosToServer(List<TodoModel> todos);
   Future<String> addNewTodo(TodoModel todo);
   Future<String> updateTodo(TodoModel todo);
   Future<String> deleteTodo(TodoModel todo);
@@ -24,13 +25,10 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<String> addNewTodo(TodoModel todo) async {
     try {
-      final documentRef =
-          firestore.collection(_getCollectionName()).document(todo.id);
-
-      firestore.runTransaction((transaction) async {
-        final docSnap = await transaction.get(documentRef);
-        await transaction.set(docSnap.reference, todo.toMap());
-      });
+      await firestore
+          .collection(_getCollectionName())
+          .document(todo.id)
+          .setData(todo.toMap());
 
       return 'Done. TODO added succesfully';
     } catch (err) {
@@ -41,13 +39,15 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<String> deleteTodo(TodoModel todo) async {
     try {
-      final docRef =
-          firestore.collection(_getCollectionName()).document(todo.id);
+      await firestore
+          .collection(_getCollectionName())
+          .document(todo.id)
+          .delete();
 
-      firestore.runTransaction((transaction) async {
-        final docSnap = await transaction.get(docRef);
-        await transaction.delete(docSnap.reference);
-      });
+      // firestore.runTransaction((transaction) async {
+      //   final docSnap = await transaction.get(docRef);
+      //   await transaction.delete(docSnap.reference);
+      // });
 
       return 'Done. TODO deleted successfully.';
     } catch (err) {
@@ -58,13 +58,16 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   @override
   Future<String> updateTodo(TodoModel todo) async {
     try {
-      final docRef =
-          firestore.collection(_getCollectionName()).document(todo.id);
+      await firestore
+          .collection(_getCollectionName())
+          .document(todo.id)
+          .updateData(todo.toMap());
 
-      firestore.runTransaction((transaction) async {
-        final docSnap = await transaction.get(docRef);
-        await transaction.update(docSnap.reference, todo.toMap());
-      });
+      // firestore.runTransaction((transaction) async {
+      //   final docSnap = await transaction.get(docRef);
+      //   await transaction.update(docSnap.reference, todo.toMap());
+      // });
+
       return 'Done. TODO updated successfully.';
     } catch (err) {
       throw ServerException(message: err.toString());
@@ -97,5 +100,24 @@ class TodoRemoteDataSourceImpl implements TodoRemoteDataSource {
   String _getCollectionName() {
     final preferences = servLocator<SharedPreferences>();
     return json.decode(preferences.getString('user'))['email'] + '-todos';
+  }
+
+  @override
+  Future<void> syncLocalTodosToServer(List<TodoModel> todos) async {
+    final snapshot = await firestore
+        .collection(
+          _getCollectionName(),
+        )
+        .getDocuments();
+
+    //Delete old TODOs from Firestore
+    for (DocumentSnapshot doc in snapshot.documents) {
+      await doc.reference.delete();
+    }
+
+    //Sync New TODOs to Firestore
+    for (TodoModel todo in todos) {
+      await addNewTodo(todo);
+    }
   }
 }

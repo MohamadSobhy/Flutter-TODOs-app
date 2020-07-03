@@ -21,34 +21,46 @@ class SettingsScreen extends StatelessWidget with AlertsMixin {
         elevation: 0.0,
         title: Text('Settings'),
       ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'APP THEME',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  .copyWith(fontSize: 18.0, fontWeight: FontWeight.bold),
-            ),
-          ),
-          ...buildAppThemeFilters(context),
-          SizedBox(height: 20.0),
-          Align(
-            alignment: Alignment.center,
-            child: FlatButton(
-              onPressed: () => _logoutCallback(context),
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (ctx, state) {
+          if (state is LoggedOutState) {
+            Provider.of<TodoProvider>(context, listen: false).clearCashe();
+
+            Navigator.popUntil(
+              context,
+              (route) => route.isFirst,
+            );
+          }
+        },
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Text(
-                'LOG OUT',
+                'APP THEME',
                 style: Theme.of(context)
                     .textTheme
-                    .button
-                    .copyWith(color: Colors.red, fontWeight: FontWeight.bold),
+                    .bodyText1
+                    .copyWith(fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
             ),
-          )
-        ],
+            ...buildAppThemeFilters(context),
+            SizedBox(height: 20.0),
+            Align(
+              alignment: Alignment.center,
+              child: FlatButton(
+                onPressed: () => _logoutCallback(context),
+                child: Text(
+                  'LOG OUT',
+                  style: Theme.of(context)
+                      .textTheme
+                      .button
+                      .copyWith(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -117,19 +129,7 @@ class SettingsScreen extends StatelessWidget with AlertsMixin {
       title: 'Do you want to Logout?',
     );
     if (isConfirmed) {
-      final bloc = BlocProvider.of<AuthBloc>(context);
-      bloc.add(LogOutEvent());
-
-      bloc.listen((state) {
-        if (state is LoggedOutState) {
-          Provider.of<TodoProvider>(context, listen: false).clearCashe();
-
-          Navigator.popUntil(
-            context,
-            (route) => route.isFirst,
-          );
-        }
-      });
+      BlocProvider.of<AuthBloc>(context).add(LogOutEvent());
     }
   }
 }

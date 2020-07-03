@@ -17,5 +17,5 @@ class Todo extends Equatable {
   });
 
   @override
-  List<Object> get props => [id, title, body, date];
+  List<Object> get props => [id, title, body, date, isDone];
 }

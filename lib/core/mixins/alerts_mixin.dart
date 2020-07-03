@@ -9,7 +9,7 @@ mixin AlertsMixin {
   void displaySnackbar(String message, context) {
     Flushbar(
       message: message,
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 3),
     ).show(context);
   }
 
