@@ -81,7 +81,7 @@ class SettingsScreen extends StatelessWidget with AlertsMixin {
                   horizontal: 10.0,
                 ),
                 child: Text(
-                  appTheme.toString(),
+                  appTheme.toString().split('.')[1],
                   style: Theme.of(context).textTheme.title.copyWith(
                         color: appThemesData[appTheme].primaryColor,
                       ),
